@@ -2,6 +2,7 @@
 
 char BASE_DIR[MAX_PATH];
 char MSG[MSG_SIZE];
+char ERR_BUF[MSG_SIZE];
 
 //====================================================================================
 // Functions Definitions
@@ -178,7 +179,9 @@ int CurrentDirectory(int ClientSocket)
     char pwd[1024] = {'\0'};
     if(getcwd(pwd, sizeof(pwd)) == NULL)
     {
-        SendMsg(ClientSocket, "ERROR: Unable to get pwd\n");
+        memset(ERR_BUF, '\0', MSG_SIZE);
+        snprintf(ERR_BUF, BF_SIZE, "ERROR: %s\n",strerror(errno));
+        SendMsg(ClientSocket, ERR_BUF);
         return -1;
     }
 
@@ -229,7 +232,9 @@ int ChangeDirectory(int ClientSocket, char * path)
 
     if(iRet == -1)
     {
-        SendMsg(ClientSocket,"ERROR: Invalid path\n");
+        memset(ERR_BUF, '\0', MSG_SIZE);
+        snprintf(ERR_BUF, BF_SIZE, "ERROR: %s\n",strerror(errno));
+        SendMsg(ClientSocket, ERR_BUF);
         return -1;
     }
 
@@ -257,7 +262,9 @@ int MakeDirectory(int ClientSocket, char * dirname)
 
     if(iRet == -1)
     {
-        SendMsg(ClientSocket,"ERROR: Inavlid arguments\n");
+        memset(ERR_BUF, '\0', MSG_SIZE);
+        snprintf(ERR_BUF, BF_SIZE, "ERROR: %s\n",strerror(errno));
+        SendMsg(ClientSocket, ERR_BUF);
         return -1;
     }
 
@@ -284,7 +291,9 @@ int RemoveDirectory(int ClientSocket, char * dirname)
 
     if(iRet == -1)
     {
-        SendMsg(ClientSocket,"ERROR: Inavlid arguments\n");
+        memset(ERR_BUF, '\0', MSG_SIZE);
+        snprintf(ERR_BUF, BF_SIZE, "ERROR: %s\n",strerror(errno));
+        SendMsg(ClientSocket, ERR_BUF);
         return -1;
     }
 
@@ -311,7 +320,9 @@ int RemoveFile(int ClientSocket, char * filename)
 
     if(iRet == -1)
     {
-        SendMsg(ClientSocket,"ERROR: Inavlid arguments\n");
+        memset(ERR_BUF, '\0', MSG_SIZE);
+        snprintf(ERR_BUF, BF_SIZE, "ERROR: %s\n",strerror(errno));
+        SendMsg(ClientSocket, ERR_BUF);
         return -1;
     }
 
@@ -346,7 +357,10 @@ int SendFileToClient(int ClientSocket , char * Filename)
         // Send Err message to client
         write(ClientSocket, "ERR\n", 4);
         sleep(1);
-        SendMsg(ClientSocket, "ERROR: Unable to download file\n");
+
+        memset(ERR_BUF, '\0', MSG_SIZE);
+        snprintf(ERR_BUF, BF_SIZE, "ERROR: %s\n",strerror(errno));
+        SendMsg(ClientSocket, ERR_BUF);
 
         return -1;
     }
